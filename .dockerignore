@@ -1,0 +1,10 @@
+.git
+.env
+**/__pycache__
+**/.pytest_cache
+ui
+secrets
+data/inbox
+data/*.sqlite*
+data/quotes
+data/outbox

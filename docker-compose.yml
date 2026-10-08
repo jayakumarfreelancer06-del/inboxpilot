@@ -1,0 +1,32 @@
+name: inboxpilot
+
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATA_DIR: /app/data
+    volumes:
+      - appdata:/app/data
+      - ./data/inbox:/app/data/inbox     # drop .eml/.json files here
+      - ./secrets:/app/secrets:ro        # Gmail mode credentials (optional)
+      - ./evals:/app/evals               # `make eval` writes evals/report.md back to the repo
+    ports:
+      - "8002:8000"
+
+  ui:
+    build: ./ui
+    environment:
+      BACKEND_URL: http://api:8000
+      AUTH_URL: http://localhost:3002
+      AUTH_SECRET: ${AUTH_SECRET:?Run `make setup` to create .env}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?Set GOOGLE_CLIENT_ID in .env}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?Set GOOGLE_CLIENT_SECRET in .env}
+    ports:
+      - "3002:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  appdata:
